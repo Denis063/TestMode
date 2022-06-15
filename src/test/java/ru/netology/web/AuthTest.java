@@ -25,16 +25,6 @@ public class AuthTest {
     }
 
     @Test
-    void authUnregisteredUser() {
-        var validUser = DataGenerator.Registration.generateUser("active");
-        $("[data-test-id=login] input").setValue(validUser.getLogin());
-        $("[data-test-id=password] input").setValue(validUser.getPassword());
-        $("button[data-test-id=action-login]").click();
-        $("[data-test-id=error-notification] .notification__content")
-                .shouldHave(text("Неверно указан логин или пароль"));
-    }
-
-    @Test
     void shouldSendBlockedUser() {
         var blockedUser = generateUser("blocked");
         $("[data-test-id=login] input").setValue(blockedUser.getLogin());
