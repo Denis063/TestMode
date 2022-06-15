@@ -1,10 +1,13 @@
 package ru.netology.web;
 
+import com.codeborne.selenide.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.Keys;
 
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
+import java.time.Duration;
+
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.*;
 import static ru.netology.web.DataGenerator.Registration.*;
@@ -15,6 +18,14 @@ public class AuthTest {
         open("http://localhost:9999");
     }
 
+    private void sendLoginForm(String login, String password) {
+
+        $("[data-test-id='login'] input").sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.BACK_SPACE);
+        $("[data-test-id='login'] input").setValue(login);
+        $("[data-test-id='password'] input").sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.BACK_SPACE);
+        $("[data-test-id='password'] input").setValue(password);
+        $$("[data-test-id='action-login'] .button__text").find(exactText("Продолжить")).click();
+    }
     @Test
     void shouldSendValidData() {
         var validUser = generateUser("active");
@@ -57,5 +68,14 @@ public class AuthTest {
     void shouldCheckWithEmptyFields() {
         $("button[data-test-id=action-login]").click();
         $(withText("Поле обязательно для заполнения")).shouldBe(visible);
+    }
+
+    @Test
+    void shouldUnregisteredUser() {
+        UserInfo unregisteredUser = getUser("active");
+        sendLoginForm(unregisteredUser.getLogin(), unregisteredUser.getPassword());
+        $("[data-test-id='error-notification'] .notification__title").shouldBe(visible, Duration.ofSeconds(5));
+        $("[data-test-id='error-notification'] .notification__title").shouldHave(Condition.text("Ошибка"), Duration.ofSeconds(5));
+        $("[data-test-id='error-notification'] .notification__content").shouldHave(Condition.text("Неверно указан логин или пароль"), Duration.ofSeconds(5));
     }
 }
