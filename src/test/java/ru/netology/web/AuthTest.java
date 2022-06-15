@@ -3,8 +3,6 @@ package ru.netology.web;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.*;
-
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.withText;
@@ -28,12 +26,12 @@ public class AuthTest {
 
     @Test
     void authUnregisteredUser() {
-        var unregisteredUser = generateUser("unregistered");
+        var unregisteredUser = generateUser("active");
         $("[data-test-id=login] input").setValue(unregisteredUser.getLogin());
         $("[data-test-id=password] input").setValue(unregisteredUser.getPassword());
         $("button[data-test-id=action-login]").click();
-        $(".notification__title").shouldHave(text("Ошибка"));
-        $(".notification__content").shouldHave(text("Неверно указан логин или пароль"));
+        $("[data-test-id=error-notification] .notification__content")
+                .shouldHave(text("Неверно указан логин или пароль"));
     }
 
     @Test
