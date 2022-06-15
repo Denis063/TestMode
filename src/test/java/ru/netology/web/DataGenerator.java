@@ -44,6 +44,20 @@ public class DataGenerator {
             return user;
         }
 
+        public static String getRandomLogin() {
+            String login = faker.name().username();
+            return login;
+        }
+
+        public static String getRandomPassword() {
+            String password = faker.funnyName().name();
+            return password;
+        }
+
+        public static UserInfo getUser(String status) {
+            return new UserInfo(getRandomLogin(), getRandomPassword(), status);
+        }
+
         public static UserInfo generateWrongLoginUser(String status) {
             var password = faker.internet().password();
             makeRequest(new UserInfo(faker.name().firstName(), password, status));
