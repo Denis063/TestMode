@@ -24,7 +24,7 @@ public class DataGenerator {
     private DataGenerator() {
     }
 
-    static void sendQuery(UserInfo userInfo) {
+    static void makeRequest(UserInfo userInfo) {
         // сам запрос
         given() // "дано"
                 .spec(requestSpec) // указываем, какую спецификацию используем
@@ -39,36 +39,22 @@ public class DataGenerator {
         private Registration() {
         }
 
-        public static String generateLogin() {
-            return faker.name().username();
-        }
-
-        public static String generatePassword() {
-            return faker.internet().password();
-        }
-
-        public static UserInfo generateValidUser() {
-            UserInfo userInfo = new UserInfo(generateLogin(), generatePassword(), "active");
-            sendQuery(userInfo);
-            return userInfo;
-        }
-
-        public static UserInfo generateBlockedUser() {
-            UserInfo userInfo = new UserInfo(generateLogin(), generatePassword(), "blocked");
-            sendQuery(userInfo);
-            return userInfo;
-        }
-
-        public static UserInfo generateWrongPasswordUser(String status) {
-            String login = generateLogin();
-            sendQuery(new UserInfo(login, generatePassword(), status));
-            return new UserInfo(login, generatePassword(), status);
+        public static UserInfo generateUser(String status) {
+            var user = new UserInfo(faker.name().fullName(), faker.internet().password(), status);
+            makeRequest(user);
+            return user;
         }
 
         public static UserInfo generateWrongLoginUser(String status) {
-            String password = generatePassword();
-            sendQuery(new UserInfo(generateLogin(), password, status));
-            return new UserInfo(generateLogin(), password, status);
+            var password = faker.internet().password();
+            makeRequest(new UserInfo(faker.name().firstName(), password, status));
+            return new UserInfo(faker.name().firstName(), password, status);
+        }
+
+        public static UserInfo generateWrongPasswordUser(String status) {
+            var login = faker.name().firstName();
+            makeRequest(new UserInfo(login, faker.internet().password(), status));
+            return new UserInfo(login, faker.internet().password(), status);
         }
     }
 }
