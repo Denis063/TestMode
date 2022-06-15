@@ -3,11 +3,12 @@ package ru.netology.web;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.*;
+
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.withText;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.Selenide.*;
 import static ru.netology.web.DataGenerator.Registration.*;
 
 public class AuthTest {
@@ -18,18 +19,28 @@ public class AuthTest {
 
     @Test
     void shouldSendValidData() {
-        UserInfo validUserInfo = DataGenerator.Registration.generateValidUser();
-        $("[data-test-id=login] input").setValue(validUserInfo.getLogin());
-        $("[data-test-id=password] input").setValue(validUserInfo.getPassword());
+        var validUser = generateUser("active");
+        $("[data-test-id=login] input").setValue(validUser.getLogin());
+        $("[data-test-id=password] input").setValue(validUser.getPassword());
         $("button[data-test-id=action-login]").click();
-        $(".App_appContainer__3jRx1").shouldBe(visible).shouldHave(text("Личный кабинет"));
+        $(withText("Личный кабинет")).shouldBe(visible);
+    }
+
+    @Test
+    void authUnregisteredUser() {
+        var unregisteredUser = generateUser("unregistered");
+        $("[data-test-id=login] input").setValue(unregisteredUser.getLogin());
+        $("[data-test-id=password] input").setValue(unregisteredUser.getPassword());
+        $("button[data-test-id=action-login]").click();
+        $(".notification__title").shouldHave(text("Ошибка"));
+        $(".notification__content").shouldHave(text("Неверно указан логин или пароль"));
     }
 
     @Test
     void shouldSendBlockedUser() {
-        UserInfo blockedUserInfo = generateBlockedUser();
-        $("[data-test-id=login] input").setValue(blockedUserInfo.getLogin());
-        $("[data-test-id=password] input").setValue(blockedUserInfo.getPassword());
+        var blockedUser = generateUser("blocked");
+        $("[data-test-id=login] input").setValue(blockedUser.getLogin());
+        $("[data-test-id=password] input").setValue(blockedUser.getPassword());
         $("button[data-test-id=action-login]").click();
         $(withText("Пользователь заблокирован")).shouldBe(visible);
     }
@@ -52,5 +63,11 @@ public class AuthTest {
         $("button[data-test-id=action-login]").click();
         $("[data-test-id=error-notification] .notification__content")
                 .shouldHave(text("Неверно указан логин или пароль"));
+    }
+
+    @Test
+    void shouldCheckWithEmptyFields() {
+        $("button[data-test-id=action-login]").click();
+        $(withText("Поле обязательно для заполнения")).shouldBe(visible);
     }
 }
